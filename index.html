@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Notes App</title>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-sm navbar-light" style="background-color: #e3f2fd;">
+    <div class="container-fluid">
+      <a class="navbar-brand">Hi <span id="profile-username"></span></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <a class="nav-link active" aria-current="page" href="#">Home</a>
+          <a class="nav-link" href="https://github.com/binarstrike/notes-app-nestjs" target="_blank">API Repo</a>
+          <a class="nav-link" href="https://github.com/binarstrike/notes-app-ui" target="_blank">UI Repo</a>
+          <a class="nav-link" href="https://github.com/binarstrike" target="_blank" tabindex="-1">Git Repository</a>
+        </div>
+      </div>
+      <!-- <div class="d-flex me-1"><a class="nav-link">Created by Binar Nugroho</a></div> -->
+    </div>
+  </nav>
+  <!-- Navbar end -->
+  <!-- Main Container -->
+  <div class="container mt-5">
+    <div class="row">
+      <!-- Create Form Input -->
+      <div class="col-md-6 mb-3">
+        <h3>Buat Catatan Baru</h3>
+        <form id="form-note-create">
+          <div class="form-group">
+            <label for="create-note-title" class="fw-semibold">Judul Catatan</label>
+            <input type="text" class="form-control" id="create-note-title" required>
+          </div>
+          <div class="form-group mt-2">
+            <label for="create-note-description" class="fw-semibold">Deskripsi Catatan</label>
+            <textarea class="form-control" id="create-note-description" rows="3" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary mt-4" id="create-submit-btn">Tambah Catatan</button>
+        </form>
+      </div>
+      <!-- Create Form Input end -->
+      <!-- Update Form Input -->
+      <div class="col-md-6">
+        <h3>Update Catatan</h3>
+        <form id="form-note-update">
+          <div class="form-group">
+            <label for="update-note-title" class="fw-semibold">Judul Catatan</label>
+            <input type="text" class="form-control" id="update-note-title" required
+              placeholder="klik tombol update pada salah satu catatan">
+          </div>
+          <div class="form-group mt-2">
+            <label for="update-note-description" class="fw-semibold">Deskripsi Catatan</label>
+            <textarea class="form-control" id="update-note-description" rows="3" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary mt-4" id="update-submit-btn">Update Catatan</button>
+        </form>
+      </div>
+      <!-- Update Form Input end -->
+      <!-- Garis Pemisah Horizontal -->
+      <div class="col-lg-12 mt-4 mb-4">
+        <div class="border-left border-secondary border-1 border-black border" style="height: 100%;"></div>
+      </div>
+      <!-- Garis Pemisah Horizontal end -->
+      <!-- Table -->
+      <div class="col-lg-12 mt-4">
+        <h3>Daftar Catatan</h3>
+        <div class="table-responsive">
+          <table class="table table-striped" id="main-notes-table">
+            <thead>
+              <tr>
+                <th>Judul</th>
+                <th>Deskripsi</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="notes-list">
+              <!-- Data catatan akan ditampilkan di sini menggunakan JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Table end -->
+    </div>
+  </div>
+  <!-- Main Container end -->
+  <!-- Toast -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toast-main" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto" id="toast-title">Title here</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body" id="toast-message">Message here</div>
+    </div>
+  </div>
+  <!-- Toast end -->
+  <!-- Modal -->
+  <div class="modal fade" id="modal-main" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="modal-title">Modal title</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="modal-body"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="modal-negative-button">Close</button>
+          <button type="button" class="btn btn-primary" id="modal-positive-button">Click me</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal end -->
+  <script type="module" src="/src/style/bootstrap.ts"></script>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
+</html>

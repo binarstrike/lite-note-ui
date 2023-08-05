@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signup Page</title>
+</head>
+
+<body>
+  <!-- Section: Design Block -->
+  <section class="text-center text-lg-start">
+    <style>
+      .cascading-right {
+        margin-right: -50px;
+      }
+
+      @media (max-width: 991.98px) {
+        .cascading-right {
+          margin-right: 0;
+        }
+      }
+    </style>
+    <!-- Jumbotron -->
+    <div class="container py-4">
+      <div class="row g-0 align-items-center">
+        <div class="col-lg-6 mb-5 mb-lg-0">
+          <div class="card cascading-right" style="
+            background: hsla(0, 0%, 100%, 0.55);
+            backdrop-filter: blur(30px);
+            ">
+            <div class="card-body p-5 shadow-5 text-center">
+              <h2 class="fw-bold mb-5">Sign up now</h2>
+              <form id="main-form">
+                <!-- Username input -->
+                <div class="form-outline mb-4 input-group flex-nowrap">
+                  <span class="input-group-text">@</span>
+                  <input type="text" id="username-form-input" class="form-control shadow-sm"
+                    placeholder="Username e.g. james_ucup32" required />
+                  <!-- <label class="form-label" for="username-form-input">Username</label> -->
+                </div>
+                <!-- 2 column grid layout with text inputs for the first and last names -->
+                <div class="row">
+                  <div class="col-md-6 mb-4">
+                    <div class="form-outline">
+                      <input type="text" id="firstname-form-input" class="form-control shadow-sm"
+                        placeholder="First name" required />
+                      <!-- <label class="form-label" for="firstname-form-input">First name</label> -->
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-4">
+                    <div class="form-outline">
+                      <input type="text" id="lastname-form-input" class="form-control shadow-sm"
+                        placeholder="Last Name (optional)" />
+                      <!-- <label class="form-label" for="lastname-form-input">Last name</label> -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Email input -->
+                <div class="form-outline mb-4">
+                  <input type="email" id="email-form-input" class="form-control shadow-sm" placeholder="Email address"
+                    required autocomplete="email" />
+                  <!-- <label class="form-label" for="email-form-input">Email address</label> -->
+                </div>
+
+                <!-- Password input -->
+                <div class="form-outline mb-4">
+                  <input type="password" id="password-form-input" class="form-control shadow-sm" placeholder="Password"
+                    required autocomplete="new-password" />
+                  <!-- <label class="form-label" for="password-form-input">Password</label> -->
+                </div>
+
+                <!-- Submit button -->
+                <button type="submit" class="btn btn-primary btn-block mb-4" id="submit-btn">Sign up</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6 mb-5 mb-lg-0">
+          <img src="https://mdbootstrap.com/img/new/ecommerce/vertical/004.jpg" class="w-100 rounded-4 shadow-4"
+            alt="" />
+        </div>
+      </div>
+    </div>
+    <!-- Jumbotron -->
+  </section>
+  <!-- Section: Design Block -->
+  <!-- Toast -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toast-main" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto" id="toast-title">Title here</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body" id="toast-message">Message here</div>
+    </div>
+  </div>
+  <!-- Toast -->
+  <!-- Modal -->
+  <div class="modal fade" id="modal-main" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="modal-title">Modal title</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="modal-body">
+          ...
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="modal-negative-button">Close</button>
+          <button type="button" class="btn btn-primary" id="modal-positive-button">Click me</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal -->
+  <script type="module" src="/src/style/bootstrap.ts"></script>
+  <script type="module" src="/src/signup.ts"></script>
+</body>
+
+</html>

@@ -1,0 +1,18 @@
+/* td {
+    white-space: normal !important;
+    word-wrap: break-word;
+}
+
+table {
+    table-layout: fixed;
+} */
+
+.table td.abbreviation {
+  max-width: 80px;
+}
+
+.table td.abbreviation p {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
