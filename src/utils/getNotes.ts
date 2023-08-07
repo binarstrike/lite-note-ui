@@ -1,6 +1,5 @@
-import { fetchApi } from ".";
+import { fetchApi, getAuthToken } from ".";
 import { NoteSchemaType } from "../schema";
-import { LocalStorageKeys } from "../types";
 
 /**
  * @example
@@ -13,11 +12,9 @@ import { LocalStorageKeys } from "../types";
  */
 export async function getNotes<
   T extends "many" | undefined = undefined,
-  U = T extends "many" ? NoteSchemaType[] : NoteSchemaType,
+  U = T extends "many" ? NoteSchemaType[] : NoteSchemaType
 >(id?: string): Promise<U> {
-  const headers = {
-    Authorization: `Bearer ${localStorage[LocalStorageKeys.ACCESS_TOKEN]}`,
-  };
+  const headers = getAuthToken("ACCESS_TOKEN").headers;
   const fetchNotes = await fetchApi<U>(
     "NOTE_GET_NOTES",
     null,

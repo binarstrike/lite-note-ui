@@ -36,8 +36,7 @@ submitButton.addEventListener("click", async function (event) {
       signupPayload
     );
 
-    const signupResponseData = fetchSignup.data;
-    const tokens: TokensSchemaType = tokensSchema.parse(signupResponseData);
+    const tokens: TokensSchemaType = tokensSchema.parse(fetchSignup.data);
     Object.entries(tokens).forEach(([key, value]) => {
       localStorage.setItem(key, value);
     });
@@ -59,7 +58,7 @@ submitButton.addEventListener("click", async function (event) {
               accountConflictModal.modalToggle();
               return;
             default:
-              console.log(errorResponse);
+              console.error(errorResponse);
               toast.showToast({
                 title: "API error",
                 message: "Error when trying fetch data from API",

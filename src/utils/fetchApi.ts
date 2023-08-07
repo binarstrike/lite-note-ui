@@ -1,11 +1,13 @@
-import { ApiEndpoints, ApiEndpointsKeyType, HttpMethods } from "../types";
+import { ApiEndpoints, ApiEndpointsKeyType } from "../types";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
 const BASE_API_URL = import.meta.env.VITE_BASE_API_URL;
+const API_VERSION = import.meta.env.VITE_DEFAULT_API_VERSION;
 
 /**
  * @example
- * const fetchBookmark = await fetchApi<{ id: string, url: string }>("/bookmarks/id");
+ * const fetchBookmark = await fetchApi<{ id: string, url: string }>("GET /bookmarks/:id");
+ * const createBookmark = await fetchApi<{ id: string, url: string }>("POST /bookmarks");
  * const { id, url } = fetchBookmark;
  * @param endpoint
  * @param data
@@ -13,26 +15,28 @@ const BASE_API_URL = import.meta.env.VITE_BASE_API_URL;
  * @returns
  */
 export async function fetchApi<
-  UResponseData = any,
+  TResponseData = any,
   TPayloadData = any,
-  VAxiosResponse extends AxiosResponse = AxiosResponse<UResponseData>,
-  ZRequestConfig extends AxiosRequestConfig = AxiosRequestConfig<TPayloadData>,
-  KApiEndpoints extends string = ApiEndpointsKeyType | (string & {})
->(endpoint: KApiEndpoints, data?: TPayloadData, config?: ZRequestConfig): Promise<VAxiosResponse> {
-  const splitedEndpoint = ApiEndpoints[endpoint as ApiEndpointsKeyType].split(" ");
-
-  const [method, urlEndpoint] =
-    endpoint in ApiEndpoints
-      ? splitedEndpoint
-      : splitedEndpoint[0] in HttpMethods
-      ? ["GET", splitedEndpoint[1]]
-      : ["GET", endpoint];
+  TAxiosResponse extends AxiosResponse = AxiosResponse<TResponseData>,
+  TConfig extends AxiosRequestConfig = AxiosRequestConfig<TPayloadData>
+>(
+  endpoint: ApiEndpointsKeyType,
+  data?: TPayloadData,
+  config?: TConfig & { version?: string }
+): Promise<TAxiosResponse> {
+  const [method, urlEndpoint] = ApiEndpoints[endpoint as ApiEndpointsKeyType]
+    .split(" ")
+    .map((endpoint, index) =>
+      index === 1
+        ? endpoint.replace(/(^\/)/, `$1v${config?.version ? config.version : API_VERSION}/`)
+        : endpoint
+    );
 
   const requestConfig = config
     ? { ...config, baseURL: BASE_API_URL, method, data }
     : { baseURL: BASE_API_URL, method, data };
 
-  const axiosRequest = await axios<UResponseData, VAxiosResponse, TPayloadData>(
+  const axiosRequest = await axios<TResponseData, TAxiosResponse, TPayloadData>(
     urlEndpoint,
     requestConfig
   );

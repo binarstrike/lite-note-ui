@@ -7,9 +7,9 @@ export const ApiEndpoints = {
   USER_UPDATE: "POST /users",
   NOTE_CREATE: "POST /notes",
   NOTE_GET_NOTES: "GET /notes",
-  NOTE_GET_BY_ID: "GET /notes/",
-  NOTE_UPDATE_BY_ID: "PATCH /notes/",
-  NOTE_DELETE_BY_ID: "DELETE /notes/",
+  NOTE_GET_BY_ID: "GET /notes",
+  NOTE_UPDATE_BY_ID: "PATCH /notes",
+  NOTE_DELETE_BY_ID: "DELETE /notes",
 } as const;
 
 export type ApiEndpointsType = typeof ApiEndpoints;

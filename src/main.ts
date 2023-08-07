@@ -62,18 +62,23 @@ function insertValueToUpdateForm(form: NoteFormSchemaType): void {
   formUpdate.description.val(form.description);
 }
 
+function clearFormInput(): void {
+  formCreate.title.val("");
+  formCreate.description.val("");
+  formUpdate.title.val("");
+  formUpdate.description.val("");
+  currentNoteIdToDelete = null;
+  currentNoteIdToUpdate = null;
+}
+
 async function isLoggedIn(): Promise<boolean> {
   if (!getAuthToken("ACCESS_TOKEN").token) return false;
   return (async function _getUser(): Promise<boolean> {
     try {
-      const fetchUser = await fetchApi<TokensSchemaType>(
-        "USER_INFO",
-        {},
-        {
-          headers: getAuthToken("ACCESS_TOKEN").headers,
-          validateStatus: (status) => (status >= 200 && status < 300) || status === 401,
-        }
-      );
+      const fetchUser = await fetchApi<TokensSchemaType>("USER_INFO", null, {
+        headers: getAuthToken("ACCESS_TOKEN").headers,
+        validateStatus: (status) => (status >= 200 && status < 300) || status === 401,
+      });
       const user = await UserProfileSchema.safeParseAsync(fetchUser.data);
       if (!user.success) throw new Error("Fail to parse object");
       localStorage.setItem(LocalStorageKeys.USER_PROFILE, JSON.stringify(user.data));
@@ -128,7 +133,7 @@ async function deleteNoteById(id: string): Promise<boolean> {
   if (!isUserLoggedIn) {
     loginExpiredModal.modalToggle();
     return false;
-  } else if (!currentNoteIdToDelete) {
+  } else if (!id) {
     toast.showToast({
       title: "Delete error",
       message: "Fail to delete note, please reload the page",
@@ -137,14 +142,11 @@ async function deleteNoteById(id: string): Promise<boolean> {
   }
   return (async function _noteDelete(): Promise<boolean> {
     try {
-      const deleteNote = await fetchApi(
-        "NOTE_DELETE_BY_ID",
-        {},
-        {
-          headers: getAuthToken("ACCESS_TOKEN").headers,
-          params: { noteId: id } satisfies NotePostParams,
-        }
-      );
+      const deleteNote = await fetchApi("NOTE_DELETE_BY_ID", null, {
+        headers: getAuthToken("ACCESS_TOKEN").headers,
+        params: { noteId: id } satisfies NotePostParams,
+      });
+      clearFormInput();
       if (deleteNote.status === HttpStatusCode.NoContent) return true;
       throw new Error("Fail to delete note, server not response 204 No Content");
     } catch (error) {
@@ -192,8 +194,7 @@ formCreate.submit.on("click", async function (event) {
         { headers: getAuthToken("ACCESS_TOKEN").headers }
       );
       tableBody.prepend(generateNoteRow(createNote.data));
-      formCreate.title.val("");
-      formCreate.description.val("");
+      clearFormInput();
       toast.showToast({ title: "INFO", message: "Success create new note" });
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -252,9 +253,7 @@ formUpdate.submit.on("click", async function (event) {
       );
       tableBody.find(`tr[data-note-id='${currentNoteIdToUpdate}']`)[0].remove();
       tableBody.prepend(generateNoteRow(updateNote.data));
-      formUpdate.title.val("");
-      formUpdate.description.val("");
-      currentNoteIdToUpdate = null;
+      clearFormInput();
       toast.showToast({ title: "INFO", message: "Success update note" });
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -277,12 +276,11 @@ formUpdate.submit.on("click", async function (event) {
 
 //* table list of notes
 mainTable.on("click", async function (event) {
-  const target = event.target;
-  if (target instanceof HTMLTableCellElement) {
+  const target = $(event.target);
+  if (target[0] instanceof HTMLTableCellElement || target[0] instanceof HTMLParagraphElement) {
     //* if clicked element by mouse is a table cell
-    if (target.nodeName === "TH") return;
-    const colsNote = getTitleAndDescriptionElementFromParentRow($(target).closest("tr"));
-    currentNoteIdToDelete = colsNote.parentRow.data("note-id");
+    if (target[0].nodeName === "TH") return;
+    const colsNote = getTitleAndDescriptionElementFromParentRow(target.parents("tr"));
 
     noteModal.setModalTitle(colsNote.title.text());
     noteModal.setModalBody(colsNote.description.text());
@@ -292,6 +290,7 @@ mainTable.on("click", async function (event) {
       "modalPositiveButton",
       () => {
         // TODO: implement update note logic
+        currentNoteIdToUpdate = colsNote.parentRow.data("note-id");
         insertValueToUpdateForm({
           title: colsNote.title.text(),
           description: colsNote.description.text(),
@@ -306,6 +305,7 @@ mainTable.on("click", async function (event) {
       "modalNegativeButton",
       async () => {
         // TODO: implement delete note logic
+        currentNoteIdToDelete = colsNote.parentRow.data("note-id");
         const deleteNote = await deleteNoteById(currentNoteIdToDelete);
         if (!deleteNote) {
           toast.showToast({
@@ -314,9 +314,9 @@ mainTable.on("click", async function (event) {
           });
           return;
         }
+
         noteModal.modalToggle();
         colsNote.parentRow.remove();
-        currentNoteIdToDelete = null;
 
         toast.showToast({
           title: "INFO",
@@ -326,21 +326,22 @@ mainTable.on("click", async function (event) {
       { once: true }
     );
     noteModal.modalToggle();
-  } else if (target instanceof HTMLButtonElement) {
+  } else if (target[0] instanceof HTMLButtonElement) {
     //* if clicked element by mouse is a button
     //* cek jika target adalah instance dari elemen tag button
     //* target akan menyesuaikan tombol apa yang di klik oleh mouse
-    const colsNote = getTitleAndDescriptionElementFromParentRow($(target).parents("tr"));
+    const colsNote = getTitleAndDescriptionElementFromParentRow(target.closest("tr"));
+    const buttonId = target.attr("id"); //* button id
 
-    if (target.id === tableUpdateBtnId) {
+    if (buttonId === tableUpdateBtnId) {
       //* update button
-      currentNoteIdToUpdate = colsNote.parentRow.data("note-id");
+      currentNoteIdToUpdate = colsNote.parentRow.data("note-id"); //* table row dataset/data attribut data-note-id
       insertValueToUpdateForm({
         title: colsNote.title.text(),
         description: colsNote.description.text(),
       });
       formUpdate.title[0].focus(); //* change focus to update form input
-    } else if (target.id === tableDeleteBtnId) {
+    } else if (buttonId === tableDeleteBtnId) {
       //* delete button
       currentNoteIdToDelete = colsNote.parentRow.data("note-id");
       const deleteNote = await deleteNoteById(currentNoteIdToDelete);
@@ -353,7 +354,6 @@ mainTable.on("click", async function (event) {
       }
 
       colsNote.parentRow.remove();
-      currentNoteIdToDelete = null;
 
       toast.showToast({
         title: "INFO",
