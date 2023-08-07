@@ -36,6 +36,11 @@ jobs:
           VITE_BASE_URL_PATH: /
           VITE_DEFAULT_API_VERSION: 1
         run: pnpm build
+      
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: dist
   
   deploy:
     name: Deploy app
@@ -51,11 +56,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v2
-        with:
-          path: dist
-
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
