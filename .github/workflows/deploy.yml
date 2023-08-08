@@ -32,7 +32,7 @@ jobs:
       
       - name: Build
         env:
-          VITE_BASE_API_URL: https://xyz.com
+          VITE_BASE_API_URL: https://lite-note.binar-api.cloud
           VITE_BASE_URL_PATH: /
           VITE_DEFAULT_API_VERSION: 1
         run: pnpm build
