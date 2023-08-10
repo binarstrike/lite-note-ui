@@ -25,16 +25,16 @@ jobs:
           version: 8
           run_install: false
       
-      - name: Install dependencies
+      - name: Install modules and dependencies
         run: >
           pnpm config set auto-install-peers true &&
           pnpm install --frozen-lockfile
       
       - name: Build
         env:
-          VITE_BASE_API_URL: https://lite-note.binar-api.cloud
-          VITE_BASE_URL_PATH: /
-          VITE_DEFAULT_API_VERSION: 1
+          VITE_BASE_API_URL: ${{ vars.BASE_API_URL }}
+          VITE_BASE_URL_PATH: ${{ vars.BASE_URL_PATH }}
+          VITE_DEFAULT_API_VERSION: ${{ vars.DEFAULT_API_VERSION }}
         run: pnpm build
       
       - name: Upload Pages artifact
