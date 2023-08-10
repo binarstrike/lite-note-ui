@@ -17,26 +17,26 @@ type SetButtonEventParams = Parameters<MyModal["setButtonEventListener"]>;
 export class MyModal {
   private readonly mainModalId = $("#modal-main");
   private modal: Modal;
+  private modalElement: JQuery;
   private modalTitle: JQuery;
   private modalBody: JQuery;
   modalPositiveButton: JQuery;
   modalNegativeButton: JQuery;
 
   constructor(modalName: string, stringOptions?: Partial<ModalStringOptions>) {
-    let modalNew: JQuery;
     const className = `modal-${modalName}`;
     if (this.mainModalId.length > 1) {
-      modalNew = this.mainModalId.addClass(className);
+      this.modalElement = this.mainModalId.addClass(className);
     } else {
-      modalNew = this.mainModalId.clone().addClass(className);
+      this.modalElement = this.mainModalId.clone().addClass(className);
     }
 
-    $(document.body).append(modalNew);
-    this.modal = new Modal(modalNew[0]);
-    this.modalTitle = modalNew.find("#modal-title");
-    this.modalBody = modalNew.find("#modal-body");
-    this.modalPositiveButton = modalNew.find("#modal-positive-button");
-    this.modalNegativeButton = modalNew.find("#modal-negative-button");
+    $(document.body).append(this.modalElement);
+    this.modal = new Modal(this.modalElement[0]);
+    this.modalTitle = this.modalElement.find("#modal-title");
+    this.modalBody = this.modalElement.find("#modal-body");
+    this.modalPositiveButton = this.modalElement.find("#modal-positive-button");
+    this.modalNegativeButton = this.modalElement.find("#modal-negative-button");
 
     if (stringOptions) {
       this.setModalTitle(stringOptions.title);
@@ -75,7 +75,11 @@ export class MyModal {
   ): this {
     const modalButton = $(this[button]);
     if (modalButton.data("bsDismiss") === "modal") modalButton.removeAttr("data-bs-dismiss");
-    // TODO: remove existing event listener
+    // TODO: menghapus event listener pada button jika button tersebut sudah terdapat event listener nya.
+    /**
+     * ? bingung entah kenapa kalau keluar dari modal tanpa menekan tombol aksi manapun
+     * ? event listener untuk button jadi tertumpuk dan lagi cari cara implementasi nya dengan benar.
+     */
     (modalButton[0] as HTMLButtonElement).addEventListener(type, listener, options);
     return this;
   }
