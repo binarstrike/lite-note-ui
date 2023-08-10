@@ -3,6 +3,14 @@ import { HttpStatusCode } from "axios";
 import { PageEndpoints, isErrorResponse } from "./types";
 import { MyModal, MyToast, fetchApi, handleError } from "./utils";
 
+const toast = new MyToast();
+const accountConflictModal = new MyModal("account-conflict", {
+  title: "Account conflict",
+  body: "Account already registered",
+  positiveButton: "Login",
+  negativeButton: "Close",
+}).onClick("modalPositiveButton", () => location.replace(PageEndpoints.LOGIN));
+
 const formInput = {
   username: <HTMLInputElement>document.getElementById("username-form-input"),
   firstname: <HTMLInputElement>document.getElementById("firstname-form-input"),
@@ -11,14 +19,6 @@ const formInput = {
   password: <HTMLInputElement>document.getElementById("password-form-input"),
 };
 const submitButton = <HTMLButtonElement>document.getElementById("submit-btn");
-
-const toast = new MyToast();
-const accountConflictModal = new MyModal("account-conflict", {
-  title: "Account conflict",
-  body: "Account already registered",
-  positiveButton: "Login",
-  negativeButton: "Close",
-}).setButtonClickEventListener("modalPositiveButton", () => location.replace(PageEndpoints.LOGIN));
 
 submitButton.addEventListener("click", async function (event) {
   event.preventDefault();
@@ -52,19 +52,18 @@ submitButton.addEventListener("click", async function (event) {
       },
       axiosError(e) {
         const errorResponse = e?.data;
-        if (isErrorResponse(errorResponse)) {
-          switch (errorResponse.statusCode) {
-            case HttpStatusCode.Conflict:
-              accountConflictModal.modalToggle();
-              return;
-            default:
-              console.error(errorResponse);
-              toast.showToast({
-                title: "API error",
-                message: "Error when trying fetch data from API",
-              });
-          }
+        console.error(errorResponse);
+        if (
+          isErrorResponse(errorResponse) &&
+          errorResponse.statusCode === HttpStatusCode.Conflict
+        ) {
+          accountConflictModal.modalToggle();
+          return;
         }
+        toast.showToast({
+          title: "API error",
+          message: "Error when trying fetch data from API",
+        });
       },
       anyError(e) {
         console.error(e?.message);

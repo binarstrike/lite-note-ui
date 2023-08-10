@@ -4,12 +4,12 @@ import { PageEndpoints, isErrorResponse } from "./types";
 import { HttpStatusCode } from "axios";
 
 const toast = new MyToast();
-const loginErrorModal = new MyModal("login-error", {
+const userNotFoundModal = new MyModal("login-error", {
   title: "Login error",
   body: "User not found, try to create new account",
   positiveButton: "Create Account",
   negativeButton: "Close",
-}).setButtonClickEventListener("modalPositiveButton", () => location.replace(PageEndpoints.SIGNUP));
+}).onClick("modalPositiveButton", () => location.replace(PageEndpoints.SIGNUP));
 
 const formInput = {
   email: <HTMLInputElement>document.getElementById("email-form-input"),
@@ -53,21 +53,20 @@ loginButton.addEventListener("click", async function (event) {
           console.error(errorResponseData);
           switch (errorResponseData.statusCode) {
             case HttpStatusCode.NotFound:
-              loginErrorModal.modalToggle();
-              break;
+              userNotFoundModal.modalToggle();
+              return;
             case HttpStatusCode.Unauthorized:
               toast.showToast({
                 title: "Credential error",
                 message: "Please input login information correctly",
               });
-              break;
-            default:
-              toast.showToast({
-                title: "API error",
-                message: "Error when trying to fetch API for user login",
-              });
+              return;
           }
         }
+        toast.showToast({
+          title: "API error",
+          message: "Error when trying to fetch API for user login",
+        });
       },
       anyError(e) {
         console.error(e?.message);
