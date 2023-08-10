@@ -11,9 +11,6 @@ type ModalStringOptions = {
 type ModalActionButton = keyof Pick<MyModal, "modalNegativeButton" | "modalPositiveButton">;
 //    ^?
 
-type SetButtonEventParams = Parameters<MyModal["setButtonEventListener"]>;
-//    ^?
-
 export class MyModal {
   private readonly mainModalId = $("#modal-main");
   private modal: Modal;
@@ -67,29 +64,18 @@ export class MyModal {
     return this;
   }
 
-  setButtonEventListener<K extends keyof HTMLElementEventMap, L extends ModalActionButton>(
-    button: L,
-    type: K,
-    listener: (this: HTMLButtonElement, ev: HTMLElementEventMap[K]) => any,
-    options?: boolean | AddEventListenerOptions
+  onClick(
+    button: ModalActionButton,
+    handler: JQuery.TypeEventHandler<HTMLElement, undefined, HTMLElement, HTMLElement, "click">,
+    once?: boolean
   ): this {
-    const modalButton = $(this[button]);
-    if (modalButton.data("bsDismiss") === "modal") modalButton.removeAttr("data-bs-dismiss");
-    // TODO: menghapus event listener pada button jika button tersebut sudah terdapat event listener nya.
-    /**
-     * ? bingung entah kenapa kalau keluar dari modal tanpa menekan tombol aksi manapun
-     * ? event listener untuk button jadi tertumpuk dan lagi cari cara implementasi nya dengan benar.
-     */
-    (modalButton[0] as HTMLButtonElement).addEventListener(type, listener, options);
+    this[button].off("click");
+    once ? this[button].one("click", handler) : this[button].on("click", handler);
     return this;
   }
 
-  setButtonClickEventListener<K extends SetButtonEventParams, L extends ModalActionButton>(
-    button: L,
-    listener: K[2],
-    options?: K[3]
-  ): this {
-    this.setButtonEventListener(button, "click", listener, options);
+  setToggleButton(button: ModalActionButton, once?: boolean): this {
+    this.onClick(button, () => this.modalToggle(), once);
     return this;
   }
 

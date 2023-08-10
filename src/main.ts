@@ -48,7 +48,9 @@ const loginExpiredModal = new MyModal("login-expired", {
   body: "You are not logged in",
   positiveButton: "Login",
   negativeButton: "Close",
-}).setButtonClickEventListener("modalPositiveButton", () => location.replace(PageEndpoints.LOGIN));
+})
+  .onClick("modalPositiveButton", () => location.replace(PageEndpoints.LOGIN))
+  .setToggleButton("modalNegativeButton");
 
 const noteModal = new MyModal("note", {
   positiveButton: "Update Note",
