@@ -55,6 +55,9 @@ const noteModal = new MyModal("note", {
   negativeButton: "Delete Note",
 });
 
+const modalPositiveButtonId = "modal-positive-button",
+  modalNegativeButtonId = "modal-negative-button";
+
 const toast = new MyToast();
 
 function insertValueToUpdateForm(form: NoteFormSchemaType): void {
@@ -276,62 +279,63 @@ formUpdate.submit.on("click", async function (event) {
 
 //* table list of notes
 mainTable.on("click", async function (event) {
-  const target = $(event.target);
-  if (target[0] instanceof HTMLTableCellElement || target[0] instanceof HTMLParagraphElement) {
-    //* if clicked element by mouse is a table cell
-    if (target[0].nodeName === "TH") return;
-    const colsNote = getTitleAndDescriptionElementFromParentRow(target.parents("tr"));
+  const tableTargetElement = $(event.target);
+
+  //* cek jika target element adalah element paragraph
+  if (tableTargetElement[0] instanceof HTMLParagraphElement) {
+    const colsNote = getTitleAndDescriptionElementFromParentRow(tableTargetElement.closest("tr"));
 
     noteModal.setModalTitle(colsNote.title.text());
     noteModal.setModalBody(colsNote.description.text());
+    noteModal.modalToggle();
 
-    //* positive button or button on right side
-    noteModal.setButtonClickEventListener(
-      "modalPositiveButton",
-      () => {
-        // TODO: implement update note logic
-        currentNoteIdToUpdate = colsNote.parentRow.data("note-id");
-        insertValueToUpdateForm({
-          title: colsNote.title.text(),
-          description: colsNote.description.text(),
-        });
-        noteModal.modalToggle();
-      },
-      { once: true }
-    );
+    //* fungsi callback ini harus memakai keyword function agar this berada
+    //* dalam scope button yang ditekan bukan element parent nya
+    //* dalam kasus ini this = document.body
+    $(document.body).on("click", async function (e) {
+      const targetElement = $(e.target);
 
-    //* negative button or button on left side
-    noteModal.setButtonClickEventListener(
-      "modalNegativeButton",
-      async () => {
-        // TODO: implement delete note logic
-        currentNoteIdToDelete = colsNote.parentRow.data("note-id");
-        const deleteNote = await deleteNoteById(currentNoteIdToDelete);
-        if (!deleteNote) {
-          toast.showToast({
-            title: "Delete note error",
-            message: "Fail to delete note, please try to reload the page",
+      if (targetElement[0] instanceof HTMLButtonElement) {
+        const buttonId = targetElement.attr("id");
+        if (buttonId === modalPositiveButtonId) {
+          currentNoteIdToUpdate = colsNote.parentRow.data("note-id");
+          insertValueToUpdateForm({
+            title: colsNote.title.text(),
+            description: colsNote.description.text(),
           });
+          noteModal.modalToggle();
+          $(this).off();
+        } else if (buttonId === modalNegativeButtonId) {
+          currentNoteIdToDelete = colsNote.parentRow.data("note-id");
+          const deleteNote = await deleteNoteById(currentNoteIdToDelete);
+          if (!deleteNote) {
+            toast.showToast({
+              title: "Delete note error",
+              message: "Fail to delete note, please try to reload the page",
+            });
+            return;
+          }
+
+          noteModal.modalToggle();
+          colsNote.parentRow.remove();
+
+          toast.showToast({
+            title: "INFO",
+            message: "Success delete note",
+          });
+          noteModal.modalToggle();
+          $(this).off();
           return;
         }
-
-        noteModal.modalToggle();
-        colsNote.parentRow.remove();
-
-        toast.showToast({
-          title: "INFO",
-          message: "Success delete note",
-        });
-      },
-      { once: true }
-    );
-    noteModal.modalToggle();
-  } else if (target[0] instanceof HTMLButtonElement) {
-    //* if clicked element by mouse is a button
+        $(this).off();
+      } else if (targetElement.attr("id") === "modal-main") $(this).off();
+      //* ^^^ jika element diluar element modal di klik maka hapus event listener pada element body
+    });
+  } else if (tableTargetElement[0] instanceof HTMLButtonElement) {
     //* cek jika target adalah instance dari elemen tag button
     //* target akan menyesuaikan tombol apa yang di klik oleh mouse
-    const colsNote = getTitleAndDescriptionElementFromParentRow(target.closest("tr"));
-    const buttonId = target.attr("id"); //* button id
+    const colsNote = getTitleAndDescriptionElementFromParentRow(tableTargetElement.closest("tr"));
+    const buttonId = tableTargetElement.attr("id"); //* button id
 
     if (buttonId === tableUpdateBtnId) {
       //* update button
