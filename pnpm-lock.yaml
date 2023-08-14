@@ -17,6 +17,9 @@ dependencies:
   jquery:
     specifier: ^3.7.0
     version: 3.7.0
+  mdb-ui-kit:
+    specifier: ^6.4.1
+    version: 6.4.1
   zod:
     specifier: ^3.21.4
     version: 3.21.4
@@ -418,6 +421,10 @@ packages:
 
   /jquery@3.7.0:
     resolution: {integrity: sha512-umpJ0/k8X0MvD1ds0P9SfowREz2LenHsQaxSohMZ5OMNEU2r0tf8pdeEFTHMFxWVxKNyU9rTtK3CWzUCTKJUeQ==}
+    dev: false
+
+  /mdb-ui-kit@6.4.1:
+    resolution: {integrity: sha512-5YjAGSpoZ40+xsjSiyRQR6xvwJn/lBMeuCNqUds7fArlYKwK8yP8vMZjLK51tCLNmhcnAurD/7HCiRYi0YRjPA==}
     dev: false
 
   /mime-db@1.52.0:
