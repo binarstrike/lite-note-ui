@@ -22,12 +22,12 @@ import { AxiosError, HttpStatusCode } from "axios";
 import $ from "jquery";
 
 let isUserLoggedIn: boolean = false,
-  currentNoteIdToUpdate: string | any,
-  currentNoteIdToDelete: string | any;
+  currentNoteIdToUpdate: string | null,
+  currentNoteIdToDelete: string | null;
 
 const mainTable = $("#main-notes-table"),
   tableBody = $("#notes-list"),
-  profileUsername = $("#profile-username"),
+  profileUsername = $(".profile-username #name"),
   tableUpdateBtnId = "note-update-btn",
   tableDeleteBtnId = "note-delete-btn";
 
@@ -43,9 +43,11 @@ const formUpdate = {
   submit: $("#update-submit-btn"),
 };
 
+const logoutButton = $("#logout-btn");
+
 const loginExpiredModal = new MyModal("login-expired", {
   title: "Login Expired",
-  body: "You are not logged in",
+  body: "Kamu belum login",
   positiveButton: "Login",
   negativeButton: "Close",
 })
@@ -115,7 +117,7 @@ async function isLoggedIn(): Promise<boolean> {
         loginExpiredModal.modalToggle();
         return;
       }
-      profileUsername.text(parsedUser.data.username);
+      profileUsername.text(parsedUser.data.username).parent().removeClass("visually-hidden");
     }
     const fetchNotes = await getNotes<"many">();
     const arrayOfNote = NoteSchema.array()
@@ -134,14 +136,14 @@ async function isLoggedIn(): Promise<boolean> {
   }
 })();
 
-async function deleteNoteById(id: string): Promise<boolean> {
+async function deleteNoteById(id: string | null): Promise<boolean> {
   if (!isUserLoggedIn) {
     loginExpiredModal.modalToggle();
     return false;
   } else if (!id) {
     toast.showToast({
-      title: "Delete error",
-      message: "Fail to delete note, please reload the page",
+      title: "INFO",
+      message: "Gagal menghapus catatan, coba untuk memuat ulang halaman web",
     });
     return false;
   }
@@ -165,7 +167,7 @@ async function deleteNoteById(id: string): Promise<boolean> {
       }
       toast.showToast({
         title: "API error",
-        message: "Fail to delete note, try to reload the page",
+        message: "Gagal menghapus catatan, coba untuk memuat ulang halaman web",
       });
       return false;
     }
@@ -179,15 +181,17 @@ formCreate.submit.on("click", async function (event) {
     loginExpiredModal.modalToggle();
     return;
   }
-  const noteInput: NoteFormSchemaType = {
-    title: formCreate.title.val() as string,
-    description: formCreate.description.val() as string,
-  };
+
+  const noteInput = {
+    title: formCreate.title.val(),
+    description: formCreate.description.val(),
+  } as { [K in keyof NoteFormSchemaType]: string };
+
   const notePayload = await NoteFormSchema.safeParseAsync(noteInput);
   if (!notePayload.success) {
     toast.showToast({
       title: "Validation error",
-      message: "Please input note information correctly",
+      message: "Gagal membuat catatan, masukan judul dan deskripsi dengan benar",
     });
     return;
   }
@@ -200,7 +204,7 @@ formCreate.submit.on("click", async function (event) {
       );
       tableBody.prepend(generateNoteRow(createNote.data));
       clearFormInput();
-      toast.showToast({ title: "INFO", message: "Success create new note" });
+      toast.showToast({ title: "INFO", message: "Berhasil membuat catatan" });
     } catch (error) {
       if (error instanceof AxiosError) {
         //* jika access token sudah tidak valid maka refresh token
@@ -213,8 +217,8 @@ formCreate.submit.on("click", async function (event) {
         return;
       }
       toast.showToast({
-        title: "Error",
-        message: "An unknown error occurred",
+        title: "ERROR",
+        message: "Terdapat kesalahan yang tidak diketahui, coba untuk memuat ulang halaman web",
       });
     }
   })();
@@ -229,20 +233,22 @@ formUpdate.submit.on("click", async function (event) {
     return;
   } else if (!currentNoteIdToUpdate) {
     toast.showToast({
-      title: "Update error",
-      message: "Click one of note update button",
+      title: "INFO",
+      message: "Klik tombol update pada salah satu catatan",
     });
     return;
   }
-  const noteInput: NoteFormSchemaType = {
-    title: formUpdate.title.val() as string,
-    description: formUpdate.description.val() as string,
-  };
-  const notePayload = await NoteFormSchema.safeParseAsync(noteInput);
+
+  const noteInputForm = {
+    title: formUpdate.title.val(),
+    description: formUpdate.description.val(),
+  } as { [K in keyof NoteFormSchemaType]: string };
+
+  const notePayload = await NoteFormSchema.safeParseAsync(noteInputForm);
   if (!notePayload.success) {
     toast.showToast({
       title: "Validation error",
-      message: "Please input note information correctly",
+      message: "Gagal memperbarui catatan, masukan judul dan deskripsi dengan benar",
     });
     return;
   }
@@ -259,7 +265,7 @@ formUpdate.submit.on("click", async function (event) {
       tableBody.find(`tr[data-note-id='${currentNoteIdToUpdate}']`)[0].remove();
       tableBody.prepend(generateNoteRow(updateNote.data));
       clearFormInput();
-      toast.showToast({ title: "INFO", message: "Success update note" });
+      toast.showToast({ title: "INFO", message: "Berhasil memperbarui catatan" });
     } catch (error) {
       if (error instanceof AxiosError) {
         //* jika access token sudah tidak valid maka refresh token
@@ -273,7 +279,7 @@ formUpdate.submit.on("click", async function (event) {
       }
       toast.showToast({
         title: "API error",
-        message: "Fail to delete note, try to reload the page",
+        message: "Gagal memperbarui catatan, coba untuk memuat ulang halaman web",
       });
     }
   })();
@@ -295,10 +301,10 @@ mainTable.on("click", async function (event) {
     //* dalam scope button yang ditekan bukan element parent nya
     //* dalam kasus ini this = document.body
     $(document.body).on("click", async function (e) {
-      const targetElement = $(e.target);
+      const targetModalElement = $(e.target);
 
-      if (targetElement[0] instanceof HTMLButtonElement) {
-        const buttonId = targetElement.attr("id");
+      if (targetModalElement[0] instanceof HTMLButtonElement) {
+        const buttonId = targetModalElement.attr("id");
         if (buttonId === modalPositiveButtonId) {
           currentNoteIdToUpdate = colsNote.parentRow.data("note-id");
           insertValueToUpdateForm({
@@ -312,8 +318,8 @@ mainTable.on("click", async function (event) {
           const deleteNote = await deleteNoteById(currentNoteIdToDelete);
           if (!deleteNote) {
             toast.showToast({
-              title: "Delete note error",
-              message: "Fail to delete note, please try to reload the page",
+              title: "ERROR",
+              message: "Gagal menghapus catatan, coba untuk memuat ulang halaman web",
             });
             return;
           }
@@ -323,14 +329,14 @@ mainTable.on("click", async function (event) {
 
           toast.showToast({
             title: "INFO",
-            message: "Success delete note",
+            message: "Berhasil menghapus catatan",
           });
           noteModal.modalToggle();
           $(this).off();
           return;
         }
         $(this).off();
-      } else if (targetElement.attr("id") === "modal-main") $(this).off();
+      } else if (targetModalElement.attr("id") === "modal-main") $(this).off();
       //* ^^^ jika element diluar element modal di klik maka hapus event listener pada element body
     });
   } else if (tableTargetElement[0] instanceof HTMLButtonElement) {
@@ -353,8 +359,8 @@ mainTable.on("click", async function (event) {
       const deleteNote = await deleteNoteById(currentNoteIdToDelete);
       if (!deleteNote) {
         toast.showToast({
-          title: "Delete note error",
-          message: "Fail to delete note, please try to reload the page",
+          title: "INFO",
+          message: "Gagal menghapus catatan, coba untuk memuat ulang halaman web",
         });
         return;
       }
@@ -363,8 +369,30 @@ mainTable.on("click", async function (event) {
 
       toast.showToast({
         title: "INFO",
-        message: "Success delete note",
+        message: "Berhasil menghapus catatan",
       });
     }
+  }
+});
+
+logoutButton.on("click", async () => {
+  if (!isUserLoggedIn) {
+    loginExpiredModal.modalToggle();
+    return;
+  }
+  try {
+    const logout = await fetchApi("AUTH_LOGOUT", null, {
+      headers: getAuthToken("ACCESS_TOKEN").headers,
+    });
+
+    if (logout.status !== HttpStatusCode.NoContent) throw new Error("Logout gagal");
+
+    localStorage.clear();
+    location.replace(PageEndpoints.LOGIN);
+  } catch (_) {
+    toast.showToast({
+      title: "INFO",
+      message: "Logout gagal, coba untuk muat ulang halaman web",
+    });
   }
 });

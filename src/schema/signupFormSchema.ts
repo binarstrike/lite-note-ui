@@ -20,9 +20,23 @@ export const signupFormSchema = z
   .refine((obj) => {
     return Object.entries(obj).every(([key, value]) => {
       if (value && typeof value == "string" && value.trim() === "") {
-        throw new Error(`${key} cannot be empty if it contains only spaces.`);
+        throw new z.ZodError([
+          {
+            path: [key],
+            code: "invalid_string",
+            validation: "regex",
+            message: "Input cannot be empty if it contains only spaces.",
+          },
+        ] satisfies z.ZodIssue[]);
       } else if (value && typeof +value === "number" && !isNaN(+value)) {
-        throw new Error(`${key} cannot be contains only number`);
+        throw new z.ZodError([
+          {
+            path: [key],
+            code: "invalid_string",
+            validation: "regex",
+            message: "Input cannot be contains only number.",
+          },
+        ] satisfies z.ZodIssue[]);
       }
       return true;
     });

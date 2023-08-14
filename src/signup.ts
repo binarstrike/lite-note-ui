@@ -6,10 +6,12 @@ import { MyModal, MyToast, fetchApi, handleError } from "./utils";
 const toast = new MyToast();
 const accountConflictModal = new MyModal("account-conflict", {
   title: "Account conflict",
-  body: "Account already registered",
+  body: "Akun sudah terdaftar",
   positiveButton: "Login",
   negativeButton: "Close",
-}).onClick("modalPositiveButton", () => location.replace(PageEndpoints.LOGIN));
+})
+  .onClick("modalPositiveButton", () => location.replace(PageEndpoints.LOGIN))
+  .setToggleButton("modalNegativeButton");
 
 const formInput = {
   username: <HTMLInputElement>document.getElementById("username-form-input"),
@@ -23,17 +25,17 @@ const submitButton = <HTMLButtonElement>document.getElementById("submit-btn");
 submitButton.addEventListener("click", async function (event) {
   event.preventDefault();
   try {
-    const signupPayload: SignupFormSchemaType = signupFormSchema.parse({
-      username: formInput.username?.value,
-      firstname: formInput.firstname?.value,
-      lastname: formInput.lastname?.value,
-      email: formInput.email?.value,
-      password: formInput.password?.value,
+    const signupForm: SignupFormSchemaType = signupFormSchema.parse({
+      username: formInput.username.value,
+      firstname: formInput.firstname.value,
+      lastname: formInput.lastname.value,
+      email: formInput.email.value,
+      password: formInput.password.value,
     });
 
     const fetchSignup = await fetchApi<TokensSchemaType, SignupFormSchemaType>(
       "AUTH_SIGNUP",
-      signupPayload
+      signupForm
     );
 
     const tokens: TokensSchemaType = tokensSchema.parse(fetchSignup.data);
@@ -45,9 +47,10 @@ submitButton.addEventListener("click", async function (event) {
     handleError(error, {
       zodError(e) {
         console.error(e);
+        const inputError = e![0].path[0];
         toast.showToast({
           title: "Validation error",
-          message: `Please input ${e?.[0].path[0]} correctly`,
+          message: `Masukan data pengguna dengan benar ${inputError ? `*${inputError}` : ""}`,
         });
       },
       axiosError(e) {
@@ -62,14 +65,15 @@ submitButton.addEventListener("click", async function (event) {
         }
         toast.showToast({
           title: "API error",
-          message: "Error when trying fetch data from API",
+          message: "Terjadi kesalahan saat mengambil data dari API",
         });
       },
       anyError(e) {
         console.error(e?.message);
         toast.showToast({
-          title: "Login Error",
-          message: "An error occurred when user trying to signup",
+          title: "Registration error",
+          message:
+            "Terjadi kesalahan saat penguna mencoba untuk registrasi,\ncoba untuk memuat ulang halaman web",
         });
       },
     });

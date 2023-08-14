@@ -6,10 +6,12 @@ import { HttpStatusCode } from "axios";
 const toast = new MyToast();
 const userNotFoundModal = new MyModal("login-error", {
   title: "Login error",
-  body: "User not found, try to create new account",
-  positiveButton: "Create Account",
+  body: "Akun pengguna tidak ditemukan",
+  positiveButton: "Buat Akun",
   negativeButton: "Close",
-}).onClick("modalPositiveButton", () => location.replace(PageEndpoints.SIGNUP));
+})
+  .onClick("modalPositiveButton", () => location.replace(PageEndpoints.SIGNUP))
+  .setToggleButton("modalNegativeButton");
 
 const formInput = {
   email: <HTMLInputElement>document.getElementById("email-form-input"),
@@ -42,9 +44,10 @@ loginButton.addEventListener("click", async function (event) {
     handleError(error, {
       zodError(e) {
         console.error(e);
+        const inputError = e![0].path[0];
         toast.showToast({
           title: "Validation error",
-          message: `Please input ${e?.[0].path} for login information correctly`,
+          message: `Masukan data pengguna dengan benar ${inputError ? `*${inputError}` : ""}`,
         });
       },
       axiosError(e) {
@@ -57,22 +60,23 @@ loginButton.addEventListener("click", async function (event) {
               return;
             case HttpStatusCode.Unauthorized:
               toast.showToast({
-                title: "Credential error",
-                message: "Please input login information correctly",
+                title: "Invalid login information",
+                message: "Masukan email dan password dengan benar",
               });
               return;
           }
         }
         toast.showToast({
           title: "API error",
-          message: "Error when trying to fetch API for user login",
+          message: "Terjadi kesalahan saat mengambil data dari API",
         });
       },
       anyError(e) {
         console.error(e?.message);
         toast.showToast({
-          title: "Login Error",
-          message: "An error occurred when user trying to login",
+          title: "Login error",
+          message:
+            "Terjadi kesalahan saat pengguna mencoba untuk login,\ncoba untuk memuat ulang halaman web",
         });
       },
     });
