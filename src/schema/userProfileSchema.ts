@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 export const UserProfileSchema = z.object({
-  id: z.string(),
   username: z.string(),
   firstname: z.string(),
   lastname: z.string().nullable(),

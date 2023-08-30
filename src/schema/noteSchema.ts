@@ -7,17 +7,11 @@ export const NoteSchema = z.object({
   createdAt: z
     .string()
     .transform((dateStr) => new Date(dateStr))
-    .refine((date) => date instanceof Date, {
-      message: "createdAt is note a date",
-      path: ["createdAt"],
-    }),
+    .refine((date) => date instanceof Date, { message: "createdAt is not a valid date" }),
   updatedAt: z
     .string()
     .transform((dateStr) => new Date(dateStr))
-    .refine((date) => date instanceof Date, {
-      message: "updatedAt is note a date",
-      path: ["updatedAt"],
-    }),
+    .refine((date) => date instanceof Date, { message: "updatedAt is not a valid date" }),
 });
 
 export type NoteSchemaType = z.infer<typeof NoteSchema>;
