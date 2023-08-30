@@ -14,16 +14,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       
-      - name: Install NodeJS
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8
           run_install: false
+
+      - name: Install NodeJS
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: pnpm
       
       - name: Install modules and dependencies
         run: >
@@ -34,7 +35,6 @@ jobs:
         env:
           VITE_BASE_API_URL: ${{ vars.BASE_API_URL }}
           VITE_BASE_URL_PATH: ${{ vars.BASE_URL_PATH }}
-          VITE_DEFAULT_API_VERSION: ${{ vars.DEFAULT_API_VERSION }}
         run: pnpm build
       
       - name: Upload Pages artifact

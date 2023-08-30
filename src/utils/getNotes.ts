@@ -1,24 +1,21 @@
 import { fetchApi, getAuthToken } from ".";
 import { NoteSchemaType } from "../schema";
+import { NoteQueryParams } from "../types";
 
 /**
  * @example
  * ```ts
- * const fetchNotes = await getNotes<"many">(); // return array of note object
- * const fetchNote = await getNotes("id of note"); // return note object
+ * const fetchNotes = await getNotes(); //* mengembalikan semua catatan dalam bentuk array
+ * const fetchNote = await getNotes("id catatan"); //* mengembalikan catatan berdasarkan id catatan dalam bentuk array
  * ```
- * @param id id of note
- * @returns
+ * @param id - id catatan
  */
-export async function getNotes<
-  T extends "many" | undefined = undefined,
-  U = T extends "many" ? NoteSchemaType[] : NoteSchemaType
->(id?: string): Promise<U> {
+export async function getNotes(id?: string): Promise<NoteSchemaType[]> {
   const headers = getAuthToken("ACCESS_TOKEN").headers;
-  const fetchNotes = await fetchApi<U>(
+  const fetchNotes = await fetchApi<NoteSchemaType[]>(
     "NOTE_GET_NOTES",
     null,
-    id ? { params: { noteId: id }, headers } : { headers }
+    id ? { params: { noteId: id } satisfies NoteQueryParams, headers } : { headers }
   );
   return fetchNotes.data;
 }

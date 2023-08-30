@@ -17,7 +17,7 @@ import {
   TokensSchemaType,
   UserProfileSchema,
 } from "./schema";
-import { LocalStorageKeys, NotePostParams, PageEndpoints } from "./types";
+import { LocalStorageKeys, NoteQueryParams, PageEndpoints } from "./types";
 import { AxiosError, HttpStatusCode } from "axios";
 import $ from "jquery";
 
@@ -119,7 +119,7 @@ async function isLoggedIn(): Promise<boolean> {
       }
       profileUsername.text(parsedUser.data.username).parent().removeClass("visually-hidden");
     }
-    const fetchNotes = await getNotes<"many">();
+    const fetchNotes = await getNotes();
     const arrayOfNote = NoteSchema.array()
       .transform((notes) =>
         //* mengurutkan  s berdasarkan waktu update terakhir
@@ -151,7 +151,7 @@ async function deleteNoteById(id: string | null): Promise<boolean> {
     try {
       const deleteNote = await fetchApi("NOTE_DELETE_BY_ID", null, {
         headers: getAuthToken("ACCESS_TOKEN").headers,
-        params: { noteId: id } satisfies NotePostParams,
+        params: { noteId: id } satisfies NoteQueryParams,
       });
       clearFormInput();
       if (deleteNote.status === HttpStatusCode.NoContent) return true;
@@ -259,7 +259,7 @@ formUpdate.submit.on("click", async function (event) {
         notePayload.data,
         {
           headers: getAuthToken("ACCESS_TOKEN").headers,
-          params: { noteId: currentNoteIdToUpdate } satisfies NotePostParams,
+          params: { noteId: currentNoteIdToUpdate } satisfies NoteQueryParams,
         }
       );
       tableBody.find(`tr[data-note-id='${currentNoteIdToUpdate}']`)[0].remove();
